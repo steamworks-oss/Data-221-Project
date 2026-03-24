@@ -1,16 +1,35 @@
-# This is a sample Python script.
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+from sklearn.tree import DecisionTreeRegressor
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+# load dataset
+df = pd.read_csv('Sales.csv')
 
+# ------------------
+# Preprocessing plan
+# ------------------
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# Convert date strings to Timestamp object, and then sort DateFrame by date in ascending order
+df["Date"] = pd.to_datetime(df["Date"], format='%Y-%m-%d')
+df.sort_values(by=["Date"], inplace=True)
 
+# Create new DateFrame grouped by total unit sales in a month
+# df_monthly = df.groupby([df["Date"].dt.year, df["Date"].dt.month])["Order_Quantity"].sum()
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+# Initialize features matrix X and labels vector y
+X = df.drop(columns=["Order_Quantity"], axis=1)
+y = df["Order_Quantity"]
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# One-hot encode categorical columns
+
+# Split chronologically with a roughly 70% train, 30% test split
+split = int(len(df) * 0.7)
+X_train = X[:split]
+X_test = X[split:]
+y_train = y[:split]
+y_test = y[split:]
+
+# Standardize the input features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
