@@ -3,7 +3,7 @@ import pandas as pd
 # ------------------
 # Preprocessing plan
 # ------------------
-def load_and_preprocess():
+def load_data():
     # load dataset
     df = pd.read_csv('Sales.csv')
 
