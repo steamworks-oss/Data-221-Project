@@ -2,13 +2,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from preprocessing import load_data
-from preprocessing import monthly_sales
 
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.linear_model import LinearRegression
 
 # Loads preprocessed dataset.
-X_train, X_test, y_train, y_test = load_data()
+X_train, X_test, y_train, y_test, monthly_sales = load_data()
 
 # Trains model.
 model = LinearRegression()
