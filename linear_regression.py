@@ -45,3 +45,20 @@ results = pd.DataFrame({
 
 # Groups data by month-year and sum values for each month.
 plot_values = results.groupby("Date")[["Actual", "Predicted"]].sum().reset_index()
+
+# Plots actual and predicted values over time.
+plt.plot(plot_values["Date"], plot_values["Actual"], label="Actual", color="blue")
+plt.plot(plot_values["Date"], plot_values["Predicted"], label="Predicted", color="red")
+# Adds labels to axes.
+plt.xlabel("Date")
+plt.ylabel("Quantity Ordered")
+# Adds title.
+plt.title("Actual vs Predicted Quantity Ordered by Month-Year")
+# Rotates x-axis label.
+plt.xticks(rotation=45)
+# Shows legend.
+plt.legend()
+# Adjusts layout to prevent overlapping.
+plt.tight_layout()
+# Display plot.
+plt.show()
