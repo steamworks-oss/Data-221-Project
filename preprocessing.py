@@ -39,12 +39,12 @@ def load_data():
     train_months = months.iloc[:split]
     test_months = months.iloc[split:]
 
-    months_train = monthly_sales["Date"].isin(train_months)
-    months_test = monthly_sales["Date"].isin(test_months)
+    train_dates = monthly_sales["Date"].isin(train_months)
+    test_dates = monthly_sales["Date"].isin(test_months)
 
-    X_train = X.loc[months_train]
-    X_test = X.loc[months_test]
-    y_train = y.loc[months_train]
-    y_test = y.loc[months_test]
+    X_train = X.loc[train_dates]
+    X_test = X.loc[test_dates]
+    y_train = y.loc[train_dates]
+    y_test = y.loc[test_dates]
 
     return X_train, X_test, y_train, y_test
