@@ -1,46 +1,14 @@
 import pandas as pd
+
+from preprocessing import load_data
+from preprocessing import monthly_sales
+
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.tree import DecisionTreeRegressor
 import matplotlib.pyplot as plt
 
 # load dataset
-df = pd.read_csv('Sales.csv')
-
-# print(df["State"].nunique())
-
-# ------------------
-# Preprocessing plan
-# ------------------
-
-# Filter out non-bicycle sales
-df = df[df["Product_Category"] == "Bikes"]
-
-# Convert date strings to Timestamp object, and then sort DateFrame by date in ascending order
-df["Date"] = pd.to_datetime(df["Date"], format='%Y-%m-%d')
-df.sort_values(by=["Date"], inplace=True)
-
-# Create new DataFrame grouped by total unit sales in a month in a location
-monthly_sales = df.groupby([df["Date"].dt.to_period('M'), "State"])["Order_Quantity"].sum().reset_index()
-monthly_sales.columns = ["Date", "State", "Order_Quantity"]
-monthly_sales["Date"] = monthly_sales["Date"].dt.to_timestamp()
-
-# Add features to the new DataFrame to use as predictors
-monthly_sales["Year"] = monthly_sales["Date"].dt.year
-monthly_sales["Month"] = monthly_sales["Date"].dt.month
-
-# Initialize features matrix X and labels vector y
-X = monthly_sales[["Year", "Month", "State"]]
-y = monthly_sales["Order_Quantity"]
-
-# One-hot encode categorical columns
-X = pd.get_dummies(X)
-
-# Split chronologically with a roughly 70% train, 30% test split
-split = int(len(monthly_sales) * 0.7) # divide by the number of states to get a clean divide between months to prevent data leakage
-X_train = X.iloc[:split]
-X_test = X.iloc[split:]
-y_train = y.iloc[:split]
-y_test = y.iloc[split:]
+X_train, X_test, y_train, y_test = load_data()
 
 # ------------------
 # Train Model
@@ -63,14 +31,28 @@ print(f"R2: {R2}")
 # Display results
 # ------------------
 
-# Plot the actual quantities ordered by month in a line graph
-actual_values = monthly_sales.groupby("Date")["Order_Quantity"].sum()
+#Put test dates, actual values, and predicted values together
+months = monthly_sales["Date"].drop_duplicates().sort_values()
+split = int(len(months) * 0.7)
+test_months = months.iloc[split:]
+test_dates = monthly_sales["Date"].isin(test_months)
 
-plt.plot(actual_values.index, actual_values.values)
+results = pd.DataFrame({
+    "Date": monthly_sales.loc[test_dates, "Date"],
+    "Actual": y_test.values,
+    "Predicted": y_pred
+})
+
+# Group by month-year and sum quantities for each date
+plot_values = results.groupby("Date")[["Actual", "Predicted"]].sum().reset_index()
+
+# Plot the predicted and actual values in a line graph
+plt.plot(plot_values["Date"], plot_values["Actual"], label="Actual", color="blue")
+plt.plot(plot_values["Date"], plot_values["Predicted"], label="Predicted", color="red")
 plt.xlabel("Date")
 plt.ylabel("Quantity Ordered")
-plt.title("Quantity Ordered per Month")
+plt.title("Actual vs Predicted Quantity Ordered by Month-Year")
 plt.xticks(rotation=45)
+plt.legend()
+plt.tight_layout()
 plt.show()
-
-# Plot the predicted quantities ordered by month in a line graph
