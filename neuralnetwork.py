@@ -1,5 +1,4 @@
 from preprocessing import load_data
-from preprocessing import monthly_sales
 
 import matplotlib as plt
 import pandas as pd
@@ -12,7 +11,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 tf.random.set_seed(42)  # seed for reproducable results
 
 # load and preprocess dataset
-X_train, X_test, y_train, y_test = load_data()
+X_train, X_test, y_train, y_test, monthly_sales = load_data()
 
 # Convert to float32 for TensorFlow
 X_train = X_train.astype('float32')
