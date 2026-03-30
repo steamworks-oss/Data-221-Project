@@ -9,8 +9,12 @@ import matplotlib.pyplot as plt
 
 # 1. Load and Split Data
 X_train, X_test, y_train, y_test, monthly_sales, train_dates, test_dates = load_data()
+from sklearn.preprocessing import StandardScaler
 
-
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+'''
 # 2. Initialize and Train
 classifier = LogisticRegression(max_iter=200)
 classifier.fit(X_train, y_train)
@@ -19,7 +23,6 @@ classifier.fit(X_train, y_train)
 accuracy_score = classifier.score(X_test, y_test)
 print(f"Model Accuracy: {accuracy_score:.2f}")
 
-'''
 In our project, we mainly use the "Order_Quantity" as our target variable for all regression models. 
 
 If we use the target variable as "Order_Quantity" for logistic model, the accuracy score will only be 8% or 0.08. 
@@ -33,53 +36,63 @@ or convert the target variable into categories (such as low, medium, high sales)
 
 #Let covert the Order_Quantity into 3 categories Low, Medium, and High using quantile-based bin
 
-monthly_sales["Sales_Level"] = pd.qcut(
-    monthly_sales["Order_Quantity"],
-    q=3,
-    labels=["Low", "Medium", "High"]
-)
+# Categorize data
+# we find the cut-off point only using the training data (y_train)
 
-y = monthly_sales["Sales_Level"]
+q1 = y_train.quantile(0.33) # 33rd percentile
+q2 = y_train.quantile(0.66) # 66th percentile
 
-# Encode target
-labelEncode = LabelEncoder()
-targetVariable = labelEncode.fit_transform(monthly_sales["Sales_Level"])
+# We define our bins: Anything from 0 to q1 is Low, q1 to q2 is Medium, q2 to 999999 is high
+max_order_quantity = monthly_sales["Order_Quantity"].max()
+bin_thresholds = [-1, q1, q2, max_order_quantity]
+bin_names = ["Low", "Medium", "High"]
 
-# correct split using train_dates and test_dates
-y_train_category = targetVariable[train_dates]
-y_test_category = targetVariable[test_dates]
-# Train model
+
+# Convert the numerical numbers into category names
+y_train_names = pd.cut(y_train, bins=bin_thresholds, labels=bin_names)
+y_test_names = pd.cut(y_test, bins=bin_thresholds, labels=bin_names)
+
+# Encode target - convert "low, medium, high" to 0,1,2
+labelEncoder = LabelEncoder()
+y_train_encoded = labelEncoder.fit_transform(y_train_names)
+y_test_encoded = labelEncoder.transform(y_test_names)
+
+# Initialize and train the model
 classifier = LogisticRegression(max_iter=1000)
-classifier.fit(X_train, y_train_category)
+classifier.fit(X_train, y_train_encoded)
 
-# Evaluate
-accuracy_score = classifier.score(X_test, y_test_category)
-print(f"Model Accuracy: {accuracy_score:.2f}")
+#Predict
+prediction_encoded = classifier.predict(X_test)  # numerical (0-2)
 
-# The accuracy improve from 0.08 to 0.69
-y_prediction = classifier.predict(X_test)
+#Convert prediction back to label
+prediction_label = labelEncoder.inverse_transform(prediction_encoded)
+y_test_label = labelEncoder.inverse_transform(y_test_encoded)
 
-conf_matrix = confusion_matrix(y_test_category, y_prediction)
-print("confustion matrix",conf_matrix)
-print(classification_report(y_test_category, y_prediction, target_names=["Low","Medium","High"]))
+# Evaluation
+print("Confusion Matrix:")
+print(confusion_matrix(y_test_encoded, prediction_encoded))
 
-# plot actual and predict values over time.
-# Display results
-# ------------------
-mapping = {"Low": 0, "Medium": 1, "High": 2}
+print("\nClassification Report:")
+print(classification_report(y_test_encoded, prediction_encoded))
+
 results = pd.DataFrame({
     "Date": monthly_sales.loc[test_dates, "Date"],
-    "Actual": labelEncode.inverse_transform(y_test_category),
-    "Predicted": labelEncode.inverse_transform(y_prediction)
+    "Actual_Label": y_test_label,
+    "Predicted_Label": prediction_label
 })
+mapping = {"Low": 0, "Medium": 1, "High": 2}
 
-results["Actual_num"] = results["Actual"].map(mapping)
-results["Predicted_num"] = results["Predicted"].map(mapping)
+results["Actual_Level"] = results["Actual_Label"].map(mapping)
+results["Predicted_Level"] = results["Predicted_Label"].map(mapping)
 
-plot_values = results.groupby("Date")[["Actual_num", "Predicted_num"]].mean().reset_index()
+# Aggregate by Date
+plot_values = results.groupby("Date")[["Actual_Level", "Predicted_Level"]].mean().reset_index()
 
-plt.plot(plot_values["Date"], plot_values["Actual_num"], label="Actual")
-plt.plot(plot_values["Date"], plot_values["Predicted_num"], label="Predicted")
+#  Plot Sales Level
+
+plt.plot(plot_values["Date"], plot_values["Actual_Level"], label="Actual_Level", color="blue")
+plt.plot(plot_values["Date"], plot_values["Predicted_Level"], label="Predicted_Level", color="red")
+plt.yticks([0, 1, 2], ["Low", "Medium", "High"])
 
 plt.xlabel("Date")
 plt.ylabel("Sales Level (0=Low,1=Med,2=High)")
@@ -89,3 +102,20 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
+# -------------------------------
+# Accuracy Over Time
+# -------------------------------
+#
+# results["Correct"] = results["Actual"] == results["Predicted"]
+#
+# accuracy_by_date = results.groupby("Date")["Correct"].mean()
+#
+# plt.figure()
+# plt.plot(accuracy_by_date.index, accuracy_by_date.values)
+#
+# plt.title("Model Accuracy Over Time")
+# plt.xlabel("Date")
+# plt.ylabel("Accuracy")
+# plt.xticks(rotation=45)
+# plt.tight_layout()
+# plt.show()
