@@ -33,3 +33,6 @@ neural_network_model.add(Dense(1))
 
 #Compile model
 neural_network_model.compile(optimizer='adam', loss='mse')
+
+#train model
+history = neural_network_model.fit(X_train, y_train, epochs=50, validation_split=0.2)
