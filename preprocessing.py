@@ -5,8 +5,6 @@ def load_data():
     # load dataset
     df = pd.read_csv('Sales.csv')
 
-    # print(df["State"].nunique())
-
     # ------------------
     # Preprocessing plan
     # ------------------
@@ -35,10 +33,18 @@ def load_data():
     X = pd.get_dummies(X)
 
     # Split chronologically with a roughly 70% train, 30% test split
-    split = int(len(monthly_sales) * 0.7) # divide by the number of states to get a clean divide between months to prevent data leakage
-    X_train = X.iloc[:split]
-    X_test = X.iloc[split:]
-    y_train = y.iloc[:split]
-    y_test = y.iloc[split:]
+    # Splits by months instead of rows to avoid data leakage (code generated with the help of ChatGPT)
+    months = monthly_sales["Date"].drop_duplicates().sort_values()
+    split = int(len(months) * 0.7)
+    train_months = months.iloc[:split]
+    test_months = months.iloc[split:]
+
+    months_train = monthly_sales["Date"].isin(train_months)
+    months_test = monthly_sales["Date"].isin(test_months)
+
+    X_train = X.loc[months_train]
+    X_test = X.loc[months_test]
+    y_train = y.loc[months_train]
+    y_test = y.loc[months_test]
 
     return X_train, X_test, y_train, y_test
