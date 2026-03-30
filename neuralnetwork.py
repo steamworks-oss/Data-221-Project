@@ -1,10 +1,10 @@
 from preprocessing import load_data
 from preprocessing import monthly_sales
 
-import tensorflow as tf
 import matplotlib.pyplot as plt
-import tensorflow as tf
 import pandas as pd
+
+import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, InputLayer
 
