@@ -36,3 +36,14 @@ neural_network_model.compile(optimizer='adam', loss='mse')
 
 #train model
 history = neural_network_model.fit(X_train, y_train, epochs=50, validation_split=0.2)
+
+#Evaluate
+y_pred = neural_network_model.predict(X_test).flatten()
+
+MAE = mean_absolute_error(y_test, y_pred)
+RMSE = mean_squared_error(y_test, y_pred) ** 0.5
+R2 = r2_score(y_test, y_pred)
+
+print(f"MAE: {MAE}")
+print(f"RMSE: {RMSE}")
+print(f"R2: {R2}")
