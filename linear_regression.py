@@ -33,12 +33,10 @@ months = monthly_sales["Date"].drop_duplicates().sort_values()
 split = int(len(months) * 0.7)
 # Selects months used for testing.
 test_months = months.iloc[:split]
-# Checks if Date from each row in monthly_sales is in test_months.
-months_test = monthly_sales["Date"].isin(test_months)
 
 # Creates DataFrame with prepared data.
 results = pd.DataFrame({
-    "Date": monthly_sales.loc[months_test, "Date"],
+    "Date": monthly_sales.loc[y_test.index, "Date"],
     "Actual": y_test.values,
     "Predicted": y_pred
 })
