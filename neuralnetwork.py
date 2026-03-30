@@ -9,7 +9,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, InputLayer
 
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-tf.random.set_seed(42)
+tf.random.set_seed(42) #seed for reproducable results
 
 #load and preprocess dataset
 X_train, X_test, y_train, y_test = load_data()
@@ -27,8 +27,8 @@ neural_network_model = Sequential()
 neural_network_model.add(InputLayer(input_shape=(X_train.shape[1],)))
 
 #Hidden layers
-neural_network_model.add(Dense(64, activation='relu'))
-neural_network_model.add(Dense(32, activation='relu'))
+neural_network_model.add(Dense(64, activation='relu')) #density of 64
+neural_network_model.add(Dense(32, activation='relu')) #density of 32
 
 #Output layer (1 neuron for regression)
 neural_network_model.add(Dense(1))
