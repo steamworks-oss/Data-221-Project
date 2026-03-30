@@ -1,6 +1,6 @@
-from preprocessing import load_data
+from preprocessing import load_and_preprocess
 
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 
 import tensorflow as tf
@@ -13,7 +13,7 @@ from sklearn.preprocessing import StandardScaler
 tf.random.set_seed(42)  # seed for reproducable results
 
 # load and preprocess dataset
-X_train, X_test, y_train, y_test, monthly_sales = load_data()
+X_train, X_test, y_train, y_test, monthly_sales = load_and_preprocess()
 
 # Convert to float32 for TensorFlow
 X_train = X_train.astype('float32')
@@ -32,7 +32,6 @@ neural_network_model = Sequential()
 neural_network_model.add(InputLayer(input_shape=(X_train.shape[1],)))
 
 # Hidden layers
-neural_network_model.add(Dense(128, activation='relu'))
 neural_network_model.add(Dense(64, activation='relu'))  # density of 64
 neural_network_model.add(Dense(32, activation='relu'))  # density of 32
 
@@ -43,7 +42,7 @@ neural_network_model.add(Dense(1))
 neural_network_model.compile(optimizer='adam', loss='mse')
 
 # Train model
-history = neural_network_model.fit(X_train, y_train, epochs=100, validation_split=0.2)
+history = neural_network_model.fit(X_train, y_train, epochs=50, validation_split=0.2)
 
 # Evaluate
 y_pred = neural_network_model.predict(X_test).flatten()
