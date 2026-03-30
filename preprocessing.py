@@ -62,7 +62,7 @@ def load_data():
     train_dates = monthly["Date"].isin(train_months)
     test_dates = monthly["Date"].isin(test_months)
 
-    # return EXACT same structure as original
+
     X_train = X[train_dates]
     X_test = X[test_dates]
     y_train = y[train_dates]
