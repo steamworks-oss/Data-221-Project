@@ -1,8 +1,5 @@
 import pandas as pd
 
-
-
-
 # ------------------
 # Preprocessing plan
 # ------------------
@@ -34,10 +31,19 @@ def load_and_preprocess():
     X = pd.get_dummies(X)
 
     # Split chronologically with a roughly 70% train, 30% test split
-    split = int(len(monthly_sales) * 0.7) # divide by the number of states to get a clean divide between months to prevent data leakage
-    X_train = X.iloc[:split]
-    X_test = X.iloc[split:]
-    y_train = y.iloc[:split]
-    y_test = y.iloc[split:]
+    months = monthly_sales["Date"].drop_duplicates().sort_values()
+    split = int(len(months) * 0.7)
+    train_months = months.iloc[:split]
+    test_months = months.iloc[split:]
+
+    train_dates = monthly_sales["Date"].isin(train_months)
+    test_dates = monthly_sales["Date"].isin(test_months)
+
+    X_train = X.loc[train_dates]
+    X_test = X.loc[test_dates]
+    y_train = y.loc[train_dates]
+    y_test = y.loc[test_dates]
+
+    # return training/testing data along with data
     return X_train, X_test, y_train, y_test, monthly_sales
 
