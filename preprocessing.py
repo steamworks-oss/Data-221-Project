@@ -45,5 +45,5 @@ def load_and_preprocess():
     y_test = y.loc[test_dates]
 
     # return training/testing data along with data
-    return X_train, X_test, y_train, y_test, monthly_sales
+    return X_train, X_test, y_train, y_test, monthly_sales, train_dates, test_dates
 
