@@ -8,6 +8,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, InputLayer
 
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.preprocessing import StandardScaler
+
 tf.random.set_seed(42)  # seed for reproducable results
 
 # load and preprocess dataset
@@ -18,6 +20,10 @@ X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
 y_train = y_train.astype('float32')
 y_test = y_test.astype('float32')
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
 
 # Build Neural Network Model
 neural_network_model = Sequential()
