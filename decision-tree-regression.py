@@ -31,19 +31,14 @@ print(f"R2: {R2}")
 # Display results
 # ------------------
 
-# Plot the predicted quantities ordered by month in a line graph
-
-# get
-df = pd.read_csv('Sales.csv')
-
 #Put test dates, actual values, and predicted values together
 months = monthly_sales["Date"].drop_duplicates().sort_values()
 split = int(len(months) * 0.7)
 test_months = months.iloc[split:]
-months_test = monthly_sales["Date"].isin(test_months)
+test_dates = monthly_sales["Date"].isin(test_months)
 
 results = pd.DataFrame({
-    "Date": monthly_sales.loc[months_test, "Date"],
+    "Date": monthly_sales.loc[test_dates, "Date"],
     "Actual": y_test.values,
     "Predicted": y_pred
 })
@@ -51,7 +46,7 @@ results = pd.DataFrame({
 # Group by month-year and sum quantities for each date
 plot_values = results.groupby("Date")[["Actual", "Predicted"]].sum().reset_index()
 
-# Plot
+# Plot the predicted and actual values in a line graph
 plt.plot(plot_values["Date"], plot_values["Actual"], label="Actual", color="blue")
 plt.plot(plot_values["Date"], plot_values["Predicted"], label="Predicted", color="red")
 plt.xlabel("Date")
