@@ -47,3 +47,32 @@ R2 = r2_score(y_test, y_pred)
 print(f"MAE: {MAE}")
 print(f"RMSE: {RMSE}")
 print(f"R2: {R2}")
+
+# get
+df = pd.read_csv('Sales.csv')
+
+#Put test dates, actual values, and predicted values together
+months = monthly_sales["Date"].drop_duplicates().sort_values()
+split = int(len(months) * 0.7)
+test_months = months.iloc[split:]
+months_test = monthly_sales["Date"].isin(test_months)
+
+results = pd.DataFrame({
+    "Date": monthly_sales.loc[months_test, "Date"],
+    "Actual": y_test.values,
+    "Predicted": y_pred
+})
+
+# Group by month-year and sum quantities for each date
+plot_values = results.groupby("Date")[["Actual", "Predicted"]].sum().reset_index()
+
+# Plot
+plt.plot(plot_values["Date"], plot_values["Actual"], label="Actual", color="blue")
+plt.plot(plot_values["Date"], plot_values["Predicted"], label="Predicted", color="red")
+plt.xlabel("Date")
+plt.ylabel("Quantity Ordered")
+plt.title("Actual vs Predicted Quantity Ordered by Month-Year")
+plt.xticks(rotation=45)
+plt.legend()
+plt.tight_layout()
+plt.savefig("actual_vs_predicted_neural_network.png")
