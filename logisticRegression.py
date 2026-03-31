@@ -11,26 +11,6 @@ from sklearn.preprocessing import StandardScaler
 # 1. Load and Split Data
 X_train, X_test, y_train, y_test, monthly_sales, train_dates, test_dates = load_data()
 
-'''
-# 2. Initialize and Train
-classifier = LogisticRegression(max_iter=200)
-classifier.fit(X_train, y_train)
-
-# 3. Evaluate Performance
-accuracy_score = classifier.score(X_test, y_test)
-print(f"Model Accuracy: {accuracy_score:.2f}")
-
-In our project, we mainly use the "Order_Quantity" as our target variable for all regression models. 
-
-If we use the target variable as "Order_Quantity" for logistic model, the accuracy score will only be 8% or 0.08. 
-This happens because Order_Quantity is continuous numerical data, but the logistic regression is designed for classification tasks
-where the output is categorical. As the results, the model incorrectly treated each unique sales value as a separate class,
-leading to poor performance and convergence warnings.
-To fix this issue, I should either switch to different regression models such as a decision tree or linear regression, 
-or convert the target variable into categories (such as low, medium, high sales) before applying logistic regression. 
-
-'''
-
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
@@ -101,6 +81,7 @@ plot_values = results.groupby("Date")[["Actual_Level", "Predicted_Level"]].mean(
 plt.plot(plot_values["Date"], plot_values["Actual_Level"], label="Actual_Level", color="blue")
 plt.plot(plot_values["Date"], plot_values["Predicted_Level"], label="Predicted_Level", color="red")
 plt.yticks([0, 1, 2], ["Low", "Medium", "High"])
+plt.figure("Logistic Regression")
 
 plt.xlabel("Date")
 plt.ylabel("Sales Level (0=Low,1=Med,2=High)")
