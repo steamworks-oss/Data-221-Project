@@ -21,7 +21,7 @@ def load_data():
     monthly["Month"] = monthly["Date"].dt.month
     monthly["Quarter"] = monthly["Date"].dt.quarter
 
-    # cyclical month encoding
+    # cyclical month encoding (Credit: https://towardsdatascience.com/cyclical-encoding-an-alternative-to-one-hot-encoding-for-time-series-features-4db46248ebba/)
     monthly["Month_sin"] = np.sin(2 * np.pi * monthly["Month"] / 12)
     monthly["Month_cos"] = np.cos(2 * np.pi * monthly["Month"] / 12)
 
