@@ -2,18 +2,15 @@ from sklearn.linear_model import LogisticRegression
 from preprocessing import load_data
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
 
 
 # 1. Load and Split Data
 X_train, X_test, y_train, y_test, monthly_sales, train_dates, test_dates = load_data()
-from sklearn.preprocessing import StandardScaler
 
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
 '''
 # 2. Initialize and Train
 classifier = LogisticRegression(max_iter=200)
@@ -34,6 +31,10 @@ or convert the target variable into categories (such as low, medium, high sales)
 
 '''
 
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
 #Let covert the Order_Quantity into 3 categories Low, Medium, and High using quantile-based bin
 
 # Categorize data
@@ -42,7 +43,7 @@ or convert the target variable into categories (such as low, medium, high sales)
 q1 = y_train.quantile(0.33) # 33rd percentile
 q2 = y_train.quantile(0.66) # 66th percentile
 
-# We define our bins: Anything from 0 to q1 is Low, q1 to q2 is Medium, q2 to 999999 is high
+# We define our bins: Anything from 0 to q1 is Low, q1 to q2 is Medium, q2 to maximum order quantity is high
 max_order_quantity = monthly_sales["Order_Quantity"].max()
 bin_thresholds = [-1, q1, q2, max_order_quantity]
 bin_names = ["Low", "Medium", "High"]
@@ -75,11 +76,18 @@ print(confusion_matrix(y_test_encoded, prediction_encoded))
 print("\nClassification Report:")
 print(classification_report(y_test_encoded, prediction_encoded))
 
+accuracy = accuracy_score(y_test_encoded, prediction_encoded)
+print(f"Accuracy: {accuracy:.2f}")
+
+
 results = pd.DataFrame({
     "Date": monthly_sales.loc[test_dates, "Date"],
     "Actual_Label": y_test_label,
     "Predicted_Label": prediction_label
 })
+
+
+
 mapping = {"Low": 0, "Medium": 1, "High": 2}
 
 results["Actual_Level"] = results["Actual_Label"].map(mapping)
