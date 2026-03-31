@@ -1,22 +1,21 @@
 import pandas as pd
 
 from preprocessing import load_data
-from preprocessing import monthly_sales
 
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeRegressor, plot_tree
 import matplotlib.pyplot as plt
 
 # load dataset
-X_train, X_test, y_train, y_test = load_data()
+X_train, X_test, y_train, y_test, monthly_sales, train_dates, test_dates = load_data()
 
 # ------------------
 # Train Model
 # ------------------
-decision_tree_regressor = DecisionTreeRegressor(max_depth=10, min_samples_leaf=4, min_samples_split=10, random_state=42)
+decision_tree_regressor = DecisionTreeRegressor(random_state=42) # max_depth=10 min_samples_leaf=4, min_samples_split=10
 decision_tree_regressor.fit(X_train, y_train)
 
-# evaluate model
+# Evaluate model
 y_pred = decision_tree_regressor.predict(X_test)
 
 MAE = mean_absolute_error(y_test, y_pred)
@@ -32,11 +31,6 @@ print(f"R2: {R2}")
 # ------------------
 
 #Put test dates, actual values, and predicted values together
-months = monthly_sales["Date"].drop_duplicates().sort_values()
-split = int(len(months) * 0.7)
-test_months = months.iloc[split:]
-test_dates = monthly_sales["Date"].isin(test_months)
-
 results = pd.DataFrame({
     "Date": monthly_sales.loc[test_dates, "Date"],
     "Actual": y_test.values,
@@ -54,5 +48,17 @@ plt.ylabel("Quantity Ordered")
 plt.title("Actual vs Predicted Quantity Ordered by Month-Year")
 plt.xticks(rotation=45)
 plt.legend()
+plt.tight_layout()
+plt.show()
+
+# Display Decision Tree
+plot_tree(
+    decision_tree_regressor,
+    feature_names=X_train.columns,
+    filled=True,
+    rounded=True,
+    fontsize=8,
+    max_depth=3
+)
 plt.tight_layout()
 plt.show()
