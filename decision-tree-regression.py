@@ -12,7 +12,7 @@ X_train, X_test, y_train, y_test, monthly_sales, train_dates, test_dates = load_
 # ------------------
 # Train Model
 # ------------------
-decision_tree_regressor = DecisionTreeRegressor(random_state=42) # max_depth=10 min_samples_leaf=4, min_samples_split=10
+decision_tree_regressor = DecisionTreeRegressor(max_depth=7, min_samples_leaf=3, min_samples_split=7, random_state=42)
 decision_tree_regressor.fit(X_train, y_train)
 
 # Evaluate model
@@ -51,7 +51,7 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-# Display Decision Tree
+# Display Decision Tree with the first three layers of leaves
 plot_tree(
     decision_tree_regressor,
     feature_names=X_train.columns,
