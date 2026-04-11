@@ -2,6 +2,7 @@ import pandas as pd
 from preprocessing import load_data
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.tree import plot_tree
 import matplotlib.pyplot as plt
 
 
@@ -10,7 +11,7 @@ X_train, X_test, y_train, y_test, monthly_sales, train_dates, test_dates = load_
 
 # Train Model
 random_forest_regressor = RandomForestRegressor(
-    n_estimators=200,   #
+    n_estimators=100,   #
     max_depth=12,
     min_samples_leaf=3,
     min_samples_split=8,
@@ -19,6 +20,8 @@ random_forest_regressor = RandomForestRegressor(
 
 random_forest_regressor.fit(X_train, y_train)
 
+importance_feature = random_forest_regressor.feature_importances_
+print("importance feature: ", importance_feature[:10])
 # Evaluate Model
 
 y_pred = random_forest_regressor.predict(X_test)
@@ -34,7 +37,6 @@ print(f"R2: {R2}")
 
 # Display Results
 
-
 results = pd.DataFrame({
     "Date": monthly_sales.loc[test_dates, "Date"],
     "Actual": y_test.values,
@@ -45,13 +47,14 @@ results = pd.DataFrame({
 plot_values = results.groupby("Date")[["Actual", "Predicted"]].sum().reset_index()
 
 # Plot
+plt.figure("Random Forest Regression")
+
 plt.plot(plot_values["Date"], plot_values["Actual"], label="Actual", color="blue")
 plt.plot(plot_values["Date"], plot_values["Predicted"], label="Predicted", color="red")
 
 plt.xlabel("Date")
 plt.ylabel("Quantity Ordered")
 plt.title("Actual vs Predicted Quantity Ordered by Month-Year")
-plt.figure("Random Forest Regression")
 plt.xticks(rotation=45)
 plt.legend()
 plt.tight_layout()
